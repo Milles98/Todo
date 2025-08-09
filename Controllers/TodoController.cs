@@ -46,20 +46,35 @@ namespace TodoApp.Controllers
         /// <param name="todoItem"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> CreateTodo(TodoDto todoItem)
+        public async Task<ActionResult<Todo>> CreateTodo([FromBody] TodoDto todoItem)
         {
-            var result = await _todoService.CreateTodoItem(todoItem);
-            return Ok(result);
+            var created = await _todoService.CreateTodoItem(todoItem);
+            return CreatedAtAction(nameof(GetTodo), new {id = created.Id}, created);
         }
 
-        [HttpDelete]
+        /// <summary>
+        /// Replaces a todo, full update
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<Todo>> PutTodo(int id, [FromBody] TodoDto todo)
+        {
+            var update = await _todoService.UpdateTodo(id, dto);
+            if (update is null) return NotFound();
+            return Ok(update);
+        }
+
+        /// <summary>
+        /// Deletes a specific todo
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteTodo(int id)
         {
-            var result = await _todoService.DeleteTodo(id);
-
-            if (result == null)
-                return NotFound();
-
+            var removed = await _todoService.DeleteTodo(id);
+            if (removed is null) return NoContent();
             return NoContent();
         }
 
