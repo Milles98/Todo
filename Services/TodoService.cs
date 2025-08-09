@@ -27,7 +27,7 @@ namespace TodoApp.Services
         {
             var todoItem = new Todo
             {
-                Description = todoDto.Description,
+                Description = todoDto.Description.Trim(),
             };
             _todoContext.Add(todoItem);
             await _todoContext.SaveChangesAsync();
@@ -39,7 +39,7 @@ namespace TodoApp.Services
             var entity = await _todoContext.Todos.FindAsync(id);
             if (entity is null) return null;
 
-            entity.Description = dto.Description;
+            entity.Description = dto.Description.Trim();
 
             await _todoContext.SaveChangesAsync();
             return entity;
