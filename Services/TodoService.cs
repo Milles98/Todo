@@ -15,12 +15,12 @@ namespace TodoApp.Services
 
         public async Task<List<Todo>> GetAll()
         {
-            return await _todoContext.Todos.ToListAsync();
+            return await _todoContext.Todos.AsNoTracking().ToListAsync();
         }
 
         public async Task<Todo?> GetTodo(int id)
         {
-            return await _todoContext.Todos.FindAsync(id);
+            return await _todoContext.Todos.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public async Task<Todo> CreateTodoItem(TodoDto todoDto)
@@ -34,12 +34,26 @@ namespace TodoApp.Services
             return todoItem;
         }
 
-        public async Task<Todo> DeleteTodo(int id)
+        public async Task<Todo?> UpdateTodo(int id, TodoDto dto)
         {
-            var todo = await _todoContext.Todos.FindAsync(id) ?? throw new InvalidOperationException($"Todo with id {id} not found.");
+            var entity = await _todoContext.Todos.FindAsync(id);
+            if (entity is null) return null;
+
+            entity.Description = dto.Description;
+
+            await _todoContext.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task<bool> DeleteTodo(int id)
+        {
+            var todo = await _todoContext.Todos.FindAsync(id);
+            if (todo is null)
+                return false;
+
             _todoContext.Remove(todo);
             await _todoContext.SaveChangesAsync();
-            return todo;
+            return true;
         }
     }
 }

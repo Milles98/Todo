@@ -58,7 +58,7 @@ namespace TodoApp.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<Todo>> PutTodo(int id, [FromBody] TodoDto todo)
+        public async Task<ActionResult<Todo>> PutTodo(int id, [FromBody] TodoDto dto)
         {
             var update = await _todoService.UpdateTodo(id, dto);
             if (update is null) return NotFound();
@@ -74,7 +74,7 @@ namespace TodoApp.Controllers
         public async Task<IActionResult> DeleteTodo(int id)
         {
             var removed = await _todoService.DeleteTodo(id);
-            if (removed is null) return NoContent();
+            if (!removed) return NoContent();
             return NoContent();
         }
 
