@@ -19,6 +19,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
+    await DbSeeder.SeedAsync(context);
     app.UseSwagger();
     app.UseSwaggerUI();
 }
