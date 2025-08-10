@@ -45,6 +45,26 @@ namespace TodoApp.Services
             return entity;
         }
 
+        public async Task<Todo?> PatchTodo(int id, TodoPatchDto dto)
+        {
+            var entity = await _todoContext.Todos.FindAsync(id);
+
+            if (entity is null) return null;
+
+            if (dto.Description is not null)
+            {
+                if (string.IsNullOrWhiteSpace(dto.Description) || dto.Description.Length > 200)
+                    throw new ArgumentException("Description must be between 1-200 chars");
+                entity.Description = dto.Description!.Trim();
+            }
+
+            if (dto.IsCompleted.HasValue)
+                entity.IsCompleted = dto.IsCompleted.Value;
+
+            await _todoContext.SaveChangesAsync();
+            return entity;
+        }
+
         public async Task<bool> DeleteTodo(int id)
         {
             var todo = await _todoContext.Todos.FindAsync(id);
