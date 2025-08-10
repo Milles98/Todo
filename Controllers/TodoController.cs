@@ -78,9 +78,8 @@ namespace TodoApp.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteTodo(int id)
         {
-            var removed = await _todoService.DeleteTodo(id);
+            await _todoService.DeleteTodo(id);
             return NoContent();
         }
-
     }
 }

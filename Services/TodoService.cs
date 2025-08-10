@@ -70,14 +70,13 @@ namespace TodoApp.Services
             return entity;
         }
 
-        public async Task<bool> DeleteTodo(int id)
+        public async Task DeleteTodo(int id)
         {
-            var todo = await _todoContext.Todos.FindAsync(id)
-                ?? throw new NotFoundException($"Todo {id} not found.");
+            var todo = await _todoContext.Todos.FindAsync(id);
+            if (todo is null) return; // idempotent: silently succeed
 
             _todoContext.Remove(todo);
             await _todoContext.SaveChangesAsync();
-            return true;
         }
     }
 }
