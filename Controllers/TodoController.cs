@@ -36,7 +36,6 @@ namespace TodoApp.Controllers
         public async Task<ActionResult<Todo>> GetTodo(int id)
         {
             var todo = await _todoService.GetTodo(id);
-            if (todo is null) return NotFound();
             return Ok(todo);
         }
 
@@ -60,28 +59,14 @@ namespace TodoApp.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult<Todo>> PutTodo(int id, [FromBody] TodoDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Description) || dto.Description.Trim().Length == 0)
-                return BadRequest("Description must be between 1-200 characters!");
-
             var update = await _todoService.UpdateTodo(id, dto);
-
-            if (update is null) return NotFound();
-
             return Ok(update);
         }
 
         [HttpPatch("{id:int}")]
         public async Task<ActionResult<Todo>> PatchTodo(int id, [FromBody] TodoPatchDto dto)
         {
-            if (dto.Description is null && dto.IsCompleted is null)
-                return BadRequest("At least one field must be provided!");
-
-            if (dto.Description != null && (string.IsNullOrWhiteSpace(dto.Description)))
-                return BadRequest("Description must be between 1-200 characters!");
-
             var updated = await _todoService.PatchTodo(id, dto);
-            if (updated is null) return NotFound();
-
             return Ok(updated);
         }
 
@@ -94,7 +79,6 @@ namespace TodoApp.Controllers
         public async Task<IActionResult> DeleteTodo(int id)
         {
             var removed = await _todoService.DeleteTodo(id);
-            if (!removed) return NoContent();
             return NoContent();
         }
 

@@ -2,6 +2,7 @@
 using TodoApp.Data;
 using TodoApp.Dto;
 using TodoApp.Models;
+using TodoApp.Exceptions;
 
 namespace TodoApp.Services
 {
@@ -13,22 +14,20 @@ namespace TodoApp.Services
             _todoContext = todoContext;
         }
 
-        public async Task<List<Todo>> GetAll()
-        {
-            return await _todoContext.Todos.AsNoTracking().ToListAsync();
-        }
+        public async Task<List<Todo>> GetAll() => 
+            await _todoContext.Todos.AsNoTracking().ToListAsync();
 
-        public async Task<Todo?> GetTodo(int id)
-        {
-            return await _todoContext.Todos.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);
-        }
+        public async Task<Todo?> GetTodo(int id) => 
+            await _todoContext.Todos.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);
 
         public async Task<Todo> CreateTodoItem(TodoDto todoDto)
         {
-            var todoItem = new Todo
-            {
-                Description = todoDto.Description.Trim(),
-            };
+            var desc = todoDto.Description?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
+                throw new ValidationException("Description must be 1-200 chars without whitespace ");
+
+            var todoItem = new Todo { Description = desc };
+
             _todoContext.Add(todoItem);
             await _todoContext.SaveChangesAsync();
             return todoItem;
@@ -36,23 +35,33 @@ namespace TodoApp.Services
 
         public async Task<Todo?> UpdateTodo(int id, TodoDto dto)
         {
-            var entity = await _todoContext.Todos.FindAsync(id);
-            if (entity is null) return null;
+            var entity = await _todoContext.Todos.FindAsync(id)
+                ?? throw new NotFoundException($"Todo {id} not found");
 
-            entity.Description = dto.Description.Trim();
+            var desc = dto.Description?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
+                throw new ValidationException("Description must be 1-200 chars without whitespace ");
 
+            entity.Description = desc;
             await _todoContext.SaveChangesAsync();
             return entity;
         }
 
         public async Task<Todo?> PatchTodo(int id, TodoPatchDto dto)
         {
-            var entity = await _todoContext.Todos.FindAsync(id);
+            var entity = await _todoContext.Todos.FindAsync(id)
+                ?? throw new NotFoundException($"Todo {id} not found");
 
-            if (entity is null) return null;
+            if (dto.Description is null && dto.IsCompleted is null)
+                throw new ValidationException("Atleast one field must be provided");
 
-            if(dto.Description != null) 
-                entity.Description = dto.Description!.Trim();
+            if (dto.Description is not null)
+            {
+                var desc = dto.Description.Trim();
+                if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
+                    throw new ValidationException("Description must be 1-200 chars without whitespace ");
+                entity.Description = desc;
+            }
 
             if (dto.IsCompleted.HasValue)
                 entity.IsCompleted = dto.IsCompleted.Value;
@@ -63,9 +72,8 @@ namespace TodoApp.Services
 
         public async Task<bool> DeleteTodo(int id)
         {
-            var todo = await _todoContext.Todos.FindAsync(id);
-            if (todo is null)
-                return false;
+            var todo = await _todoContext.Todos.FindAsync(id)
+                ?? throw new NotFoundException($"Todo {id} not found.");
 
             _todoContext.Remove(todo);
             await _todoContext.SaveChangesAsync();
