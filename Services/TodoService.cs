@@ -73,7 +73,7 @@ namespace TodoApp.Services
         public async Task DeleteTodo(int id)
         {
             var todo = await _todoContext.Todos.FindAsync(id);
-            if (todo is null) return; // idempotent: silently succeed
+            if (todo is null) return;
 
             _todoContext.Remove(todo);
             await _todoContext.SaveChangesAsync();
