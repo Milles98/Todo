@@ -51,12 +51,8 @@ namespace TodoApp.Services
 
             if (entity is null) return null;
 
-            if (dto.Description is not null)
-            {
-                if (string.IsNullOrWhiteSpace(dto.Description) || dto.Description.Length > 200)
-                    throw new ArgumentException("Description must be between 1-200 chars");
+            if(dto.Description != null) 
                 entity.Description = dto.Description!.Trim();
-            }
 
             if (dto.IsCompleted.HasValue)
                 entity.IsCompleted = dto.IsCompleted.Value;

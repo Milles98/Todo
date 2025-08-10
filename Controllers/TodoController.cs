@@ -76,6 +76,9 @@ namespace TodoApp.Controllers
             if (dto.Description is null && dto.IsCompleted is null)
                 return BadRequest("At least one field must be provided!");
 
+            if (dto.Description != null && (string.IsNullOrWhiteSpace(dto.Description)))
+                return BadRequest("Description must be between 1-200 characters!");
+
             var updated = await _todoService.PatchTodo(id, dto);
             if (updated is null) return NotFound();
 
