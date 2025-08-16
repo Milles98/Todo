@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using TodoApp.Models;
+using TodoApp.Domain.Entities;
 
-namespace TodoApp.Data
+namespace TodoApp.Infrastructure
 {
     public class TodoContext : DbContext
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Dto;
-using TodoApp.Models;
+using TodoApp.Domain.Entities;
 using TodoApp.Services;
 
 namespace TodoApp.Controllers

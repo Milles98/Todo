@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Data;
+using TodoApp.Infrastructure;
 using TodoApp.Middleware;
 using TodoApp.Services;
 
@@ -12,7 +13,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<TodoContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddInfrastructure(builder.Configuration);
+
 builder.Services.AddScoped<TodoService>();
 
 var app = builder.Build();

@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoApp.Data;
 using TodoApp.Dto;
-using TodoApp.Models;
+using TodoApp.Domain.Entities;
 using TodoApp.Exceptions;
+using TodoApp.Infrastructure;
 
 namespace TodoApp.Services
 {
