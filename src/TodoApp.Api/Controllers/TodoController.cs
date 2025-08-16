@@ -23,7 +23,7 @@ namespace TodoApp.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Todo>>> GetAll()
         {
-            var result = await _todoService.GetAll();
+            var result = await _todoService.GetAllAsync();
             return Ok(result);
         }
 
@@ -35,19 +35,19 @@ namespace TodoApp.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Todo>> GetTodo(int id)
         {
-            var todo = await _todoService.GetTodo(id);
+            var todo = await _todoService.GetAsync(id);
             return Ok(todo);
         }
 
         /// <summary>
         /// Creates a todo 
         /// </summary>
-        /// <param name="todoItem"></param>
+        /// <param name="description"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<Todo>> CreateTodo([FromBody] TodoDto todoItem)
+        public async Task<ActionResult<Todo>> CreateTodo([FromBody] string description)
         {
-            var created = await _todoService.CreateTodoItem(todoItem);
+            var created = await _todoService.CreateAsync(description);
             return CreatedAtAction(nameof(GetTodo), new {id = created.Id}, created);
         }
 
@@ -78,7 +78,7 @@ namespace TodoApp.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteTodo(int id)
         {
-            await _todoService.DeleteTodo(id);
+            await _todoService.DeleteAsync(id);
             return NoContent();
         }
     }

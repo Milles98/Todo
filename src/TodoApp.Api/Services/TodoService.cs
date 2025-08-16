@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TodoApp.Data;
-using TodoApp.Dto;
+using TodoApp.Application.Abstractions;
 using TodoApp.Domain.Entities;
+using TodoApp.Dto;
 using TodoApp.Exceptions;
 using TodoApp.Infrastructure;
 
@@ -9,75 +9,68 @@ namespace TodoApp.Services
 {
     public class TodoService
     {
-        private TodoContext _todoContext;
-        public TodoService(TodoContext todoContext)
+        private readonly ITodoRepository _repo;
+        public TodoService(ITodoRepository repo) => _repo = repo;
+
+        public Task<List<Todo>> GetAllAsync(CancellationToken ct = default)
+    => _repo.GetAllAsync(ct);
+
+        public Task<Todo?> GetAsync(int id, CancellationToken ct = default)
+    => _repo.GetByIdAsync(id, ct);
+
+        public async Task<Todo> CreateAsync(string description, CancellationToken ct = default)
         {
-            _todoContext = todoContext;
+            var todo = new Todo { Description = description, IsCompleted = false, CreatedAt = DateTime.UtcNow };
+            await _repo.AddAsync(todo, ct);
+            await _repo.SaveChangesAsync(ct);
+            return todo;
         }
 
-        public async Task<List<Todo>> GetAll() => 
-            await _todoContext.Todos.AsNoTracking().ToListAsync();
-
-        public async Task<Todo?> GetTodo(int id) => 
-            await _todoContext.Todos.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);
-
-        public async Task<Todo> CreateTodoItem(TodoDto todoDto)
+        public async Task<Todo> UpdateTodo(int id, TodoDto dto, CancellationToken ct = default)
         {
-            var desc = todoDto.Description?.Trim() ?? "";
-            if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
-                throw new ValidationException("Description must be 1-200 chars without whitespace ");
-
-            var todoItem = new Todo { Description = desc };
-
-            _todoContext.Add(todoItem);
-            await _todoContext.SaveChangesAsync();
-            return todoItem;
-        }
-
-        public async Task<Todo?> UpdateTodo(int id, TodoDto dto)
-        {
-            var entity = await _todoContext.Todos.FindAsync(id)
+            var entity = await _repo.GetByIdAsync(id, ct)
                 ?? throw new NotFoundException($"Todo {id} not found");
 
-            var desc = dto.Description?.Trim() ?? "";
+            var desc = (dto.Description ?? "").Trim();
             if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
-                throw new ValidationException("Description must be 1-200 chars without whitespace ");
+                throw new ValidationException("Description must be 1–200 chars (non-whitespace).");
 
             entity.Description = desc;
-            await _todoContext.SaveChangesAsync();
+
+            await _repo.SaveChangesAsync(ct);
             return entity;
         }
 
-        public async Task<Todo?> PatchTodo(int id, TodoPatchDto dto)
+        public async Task<Todo> PatchTodo(int id, TodoPatchDto dto, CancellationToken ct = default)
         {
-            var entity = await _todoContext.Todos.FindAsync(id)
+            var entity = await _repo.GetByIdAsync(id, ct)
                 ?? throw new NotFoundException($"Todo {id} not found");
 
             if (dto.Description is null && dto.IsCompleted is null)
-                throw new ValidationException("Atleast one field must be provided");
+                throw new ValidationException("At least one field must be provided.");
 
             if (dto.Description is not null)
             {
                 var desc = dto.Description.Trim();
                 if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
-                    throw new ValidationException("Description must be 1-200 chars without whitespace ");
+                    throw new ValidationException("Description must be 1–200 chars (non-whitespace).");
                 entity.Description = desc;
             }
 
-            if (dto.IsCompleted.HasValue)
+            if (dto.IsCompleted is not null)
                 entity.IsCompleted = dto.IsCompleted.Value;
 
-            await _todoContext.SaveChangesAsync();
+            await _repo.SaveChangesAsync(ct);
             return entity;
         }
 
-        public async Task DeleteTodo(int id)
+        public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
         {
-            var todo = await _todoContext.Todos.FindAsync(id);
-            if (todo is null) return;
-
-            _todoContext.Remove(todo);
-            await _todoContext.SaveChangesAsync();
+            var todo = await _repo.GetByIdAsync(id, ct);
+            if (todo is null) return false;
+            await _repo.DeleteAsync(todo, ct);
+            await _repo.SaveChangesAsync(ct);
+            return true;
         }
     }
 }

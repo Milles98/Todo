@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TodoApp.Application.Abstractions;
+using TodoApp.Infrastructure.Repositories;
 
 namespace TodoApp.Infrastructure
 {
@@ -15,6 +17,9 @@ namespace TodoApp.Infrastructure
         {
             services.AddDbContext<TodoContext>(o =>
                 o.UseSqlServer(config.GetConnectionString("Default")));
+
+            services.AddScoped<ITodoRepository, EfTodoRepository>();
+
             return services;
         }
     }
