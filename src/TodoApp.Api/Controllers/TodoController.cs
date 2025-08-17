@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using TodoApp.Application.Dto;
-using TodoApp.Application.Services;
+using TodoApp.Application.Todos.Commands;
+using TodoApp.Application.Todos.Queries;
 using TodoApp.Domain.Entities;
 
 namespace TodoApp.Controllers
@@ -9,10 +11,10 @@ namespace TodoApp.Controllers
     [ApiController]
     public class TodoController : ControllerBase
     {
-        private TodoService _todoService;
-        public TodoController(TodoService todoService)
+        private readonly IMediator _mediator;
+        public TodoController(IMediator mediator)
         {
-            _todoService = todoService;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -22,7 +24,7 @@ namespace TodoApp.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Todo>>> GetAll()
         {
-            var result = await _todoService.GetAllAsync();
+            var result = await _mediator.Send(new GetTodosQuery());
             return Ok(result);
         }
 
@@ -34,7 +36,7 @@ namespace TodoApp.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Todo>> GetTodo(int id)
         {
-            var todo = await _todoService.GetAsync(id);
+            var todo = await _mediator.Send(new GetTodoByIdQuery(id));
             return Ok(todo);
         }
 
@@ -46,7 +48,7 @@ namespace TodoApp.Controllers
         [HttpPost]
         public async Task<ActionResult<Todo>> CreateTodo([FromBody] string description)
         {
-            var created = await _todoService.CreateAsync(description);
+            var created = await _mediator.Send(new CreateTodoCommand(description));
             return CreatedAtAction(nameof(GetTodo), new { id = created.Id }, created);
         }
 
@@ -58,14 +60,14 @@ namespace TodoApp.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult<Todo>> PutTodo(int id, [FromBody] TodoDto dto)
         {
-            var update = await _todoService.UpdateTodo(id, dto);
+            var update = await _mediator.Send(new UpdateTodoCommand(id, dto));
             return Ok(update);
         }
 
         [HttpPatch("{id:int}")]
         public async Task<ActionResult<Todo>> PatchTodo(int id, [FromBody] TodoPatchDto dto)
         {
-            var updated = await _todoService.PatchTodo(id, dto);
+            var updated = await _mediator.Send(new PatchTodoCommand(id, dto));
             return Ok(updated);
         }
 
@@ -77,7 +79,7 @@ namespace TodoApp.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteTodo(int id)
         {
-            await _todoService.DeleteAsync(id);
+            await _mediator.Send(new DeleteTodoCommand(id));
             return NoContent();
         }
     }
