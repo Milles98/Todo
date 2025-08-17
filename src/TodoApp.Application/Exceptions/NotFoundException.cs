@@ -1,4 +1,4 @@
-﻿namespace TodoApp.Exceptions
+﻿namespace TodoApp.Application.Exceptions
 {
     public sealed class NotFoundException : Exception
     {

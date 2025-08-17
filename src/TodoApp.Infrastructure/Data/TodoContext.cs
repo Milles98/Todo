@@ -2,7 +2,7 @@
 using System;
 using TodoApp.Domain.Entities;
 
-namespace TodoApp.Infrastructure
+namespace TodoApp.Infrastructure.Data
 {
     public class TodoContext : DbContext
     {

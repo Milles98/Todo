@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TodoApp.Dto
+namespace TodoApp.Application.Dto
 {
     public class TodoPatchDto
     {

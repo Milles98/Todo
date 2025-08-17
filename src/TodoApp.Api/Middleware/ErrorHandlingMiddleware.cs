@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using TodoApp.Exceptions;
+using TodoApp.Application.Exceptions;
 
 namespace TodoApp.Middleware
 {
@@ -34,7 +34,6 @@ namespace TodoApp.Middleware
             var status = ex switch
             {
                 NotFoundException => (int)HttpStatusCode.NotFound,
-                ValidationException => (int)HttpStatusCode.BadRequest,
                 _ => (int)HttpStatusCode.InternalServerError
             };
 

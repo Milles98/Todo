@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TodoApp.Application.Abstractions;
+﻿using TodoApp.Application.Abstractions;
 using TodoApp.Domain.Entities;
-using TodoApp.Dto;
-using TodoApp.Exceptions;
-using TodoApp.Infrastructure;
+using TodoApp.Application.Dto;
+using TodoApp.Application.Exceptions;
 
-namespace TodoApp.Services
+namespace TodoApp.Application.Services
 {
     public class TodoService
     {
@@ -13,10 +11,13 @@ namespace TodoApp.Services
         public TodoService(ITodoRepository repo) => _repo = repo;
 
         public Task<List<Todo>> GetAllAsync(CancellationToken ct = default)
-    => _repo.GetAllAsync(ct);
+            => _repo.GetAllAsync(ct);
 
-        public Task<Todo?> GetAsync(int id, CancellationToken ct = default)
-    => _repo.GetByIdAsync(id, ct);
+        public async Task<Todo> GetAsync(int id, CancellationToken ct = default)
+        {
+            var todo = await _repo.GetByIdAsync(id, ct);
+            return todo ?? throw new NotFoundException($"Todo {id} not found");
+        }
 
         public async Task<Todo> CreateAsync(string description, CancellationToken ct = default)
         {
@@ -31,12 +32,7 @@ namespace TodoApp.Services
             var entity = await _repo.GetByIdAsync(id, ct)
                 ?? throw new NotFoundException($"Todo {id} not found");
 
-            var desc = (dto.Description ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
-                throw new ValidationException("Description must be 1–200 chars (non-whitespace).");
-
-            entity.Description = desc;
-
+            entity.Description = dto.Description.Trim();
             await _repo.SaveChangesAsync(ct);
             return entity;
         }
@@ -46,17 +42,9 @@ namespace TodoApp.Services
             var entity = await _repo.GetByIdAsync(id, ct)
                 ?? throw new NotFoundException($"Todo {id} not found");
 
-            if (dto.Description is null && dto.IsCompleted is null)
-                throw new ValidationException("At least one field must be provided.");
-
             if (dto.Description is not null)
-            {
-                var desc = dto.Description.Trim();
-                if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
-                    throw new ValidationException("Description must be 1–200 chars (non-whitespace).");
-                entity.Description = desc;
-            }
-
+                entity.Description = dto.Description.Trim();
+                
             if (dto.IsCompleted is not null)
                 entity.IsCompleted = dto.IsCompleted.Value;
 
@@ -66,8 +54,8 @@ namespace TodoApp.Services
 
         public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
         {
-            var todo = await _repo.GetByIdAsync(id, ct);
-            if (todo is null) return false;
+            var todo = await _repo.GetByIdAsync(id, ct) 
+                ?? throw new NotFoundException($"Todo {id} not found");
             await _repo.DeleteAsync(todo, ct);
             await _repo.SaveChangesAsync(ct);
             return true;
