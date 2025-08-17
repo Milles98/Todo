@@ -54,8 +54,8 @@ namespace TodoApp.Application.Services
 
         public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
         {
-            var todo = await _repo.GetByIdAsync(id, ct);
-            if (todo is null) return false;
+            var todo = await _repo.GetByIdAsync(id, ct) 
+                ?? throw new NotFoundException($"Todo {id} not found");
             await _repo.DeleteAsync(todo, ct);
             await _repo.SaveChangesAsync(ct);
             return true;
