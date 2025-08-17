@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TodoApp.Dto;
 using TodoApp.Domain.Entities;
 using TodoApp.Services;
+using TodoApp.Exceptions;
 
 namespace TodoApp.Controllers
 {

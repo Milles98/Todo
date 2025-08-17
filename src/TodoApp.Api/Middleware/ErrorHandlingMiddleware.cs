@@ -34,7 +34,6 @@ namespace TodoApp.Middleware
             var status = ex switch
             {
                 NotFoundException => (int)HttpStatusCode.NotFound,
-                ValidationException => (int)HttpStatusCode.BadRequest,
                 _ => (int)HttpStatusCode.InternalServerError
             };
 
