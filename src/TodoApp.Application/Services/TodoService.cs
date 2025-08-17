@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TodoApp.Application.Abstractions;
+﻿using TodoApp.Application.Abstractions;
 using TodoApp.Domain.Entities;
-using TodoApp.Dto;
-using TodoApp.Exceptions;
-using TodoApp.Infrastructure;
+using TodoApp.Application.Dto;
+using TodoApp.Application.Exceptions;
 
-namespace TodoApp.Services
+namespace TodoApp.Application.Services
 {
     public class TodoService
     {

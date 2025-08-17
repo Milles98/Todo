@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using TodoApp.Dto;
+﻿using Microsoft.AspNetCore.Mvc;
+using TodoApp.Application.Dto;
+using TodoApp.Application.Services;
 using TodoApp.Domain.Entities;
-using TodoApp.Services;
-using TodoApp.Exceptions;
 
 namespace TodoApp.Controllers
 {
@@ -49,7 +47,7 @@ namespace TodoApp.Controllers
         public async Task<ActionResult<Todo>> CreateTodo([FromBody] string description)
         {
             var created = await _todoService.CreateAsync(description);
-            return CreatedAtAction(nameof(GetTodo), new {id = created.Id}, created);
+            return CreatedAtAction(nameof(GetTodo), new { id = created.Id }, created);
         }
 
         /// <summary>

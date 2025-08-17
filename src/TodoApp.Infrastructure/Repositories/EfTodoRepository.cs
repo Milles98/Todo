@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoApp.Application.Abstractions;
 using TodoApp.Domain.Entities;
+using TodoApp.Infrastructure.Data;
 
 namespace TodoApp.Infrastructure.Repositories
 {

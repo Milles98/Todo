@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoApp.Domain.Entities;
-using TodoApp.Infrastructure;
 
-namespace TodoApp.Data
+namespace TodoApp.Infrastructure.Data
 {
     public class DbSeeder
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using TodoApp.Exceptions;
+using TodoApp.Application.Exceptions;
 
 namespace TodoApp.Middleware
 {

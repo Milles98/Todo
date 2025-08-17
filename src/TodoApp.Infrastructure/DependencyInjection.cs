@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TodoApp.Application.Abstractions;
+using TodoApp.Infrastructure.Data;
 using TodoApp.Infrastructure.Repositories;
 
 namespace TodoApp.Infrastructure
