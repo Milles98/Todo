@@ -3,8 +3,9 @@ using FluentValidation.AspNetCore;
 using TodoApp.Infrastructure.Data;
 using TodoApp.Infrastructure;
 using TodoApp.Middleware;
-using TodoApp.Application.Services;
 using TodoApp.Validation;
+using MediatR;
+using TodoApp.Application.Todos.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,12 +15,16 @@ builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<TodoDtoValidator>();
 
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblyContaining<GetTodosQuery>();
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddScoped<TodoService>();
 
 var app = builder.Build();
 
